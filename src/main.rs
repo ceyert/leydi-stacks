@@ -106,7 +106,7 @@ impl LeydiStacks {
         }
     }
 
-    pub fn run(&mut self) -> () {
+    pub fn execute(&mut self) -> () {
         unsafe {
             RUNTIME_PTR = self as *mut LeydiStacks;
         }
@@ -158,7 +158,7 @@ impl LeydiStacks {
         true
     }
 
-    pub fn new_stack(&mut self, base_function: fn(), trigger_function: fn(usize, usize)) {
+    pub fn new_stack(&mut self, base_function: fn(), callback_function: fn(usize, usize)) {
         let new_stack = self
             .stack_pool
             .iter_mut()
@@ -186,7 +186,7 @@ impl LeydiStacks {
             std::ptr::write(_buffer_index, func_return as u64);
 
             _buffer_index = stack_buff_ptr.offset(-32) as *mut u64;
-            std::ptr::write(_buffer_index, trigger_function as u64);
+            std::ptr::write(_buffer_index, callback_function as u64);
 
             _buffer_index = stack_buff_ptr.offset(-40) as *mut u64;
             std::ptr::write(_buffer_index, func_return as u64);
@@ -329,12 +329,12 @@ pub fn get_current_stack_id() -> usize {
 pub fn main() {
     let mut runtime = LeydiStacks::new();
 
-    runtime.new_stack(func1, stack1_trigger);
-    runtime.new_stack(func2, stack2_trigger);
-    runtime.new_stack(func3, stack3_trigger);
-    runtime.new_stack(func4, stack4_trigger);
+    runtime.new_stack(func1, callback1);
+    runtime.new_stack(func2, callback2);
+    runtime.new_stack(func3, callback3);
+    runtime.new_stack(func4, callback4);
 
-    runtime.run();
+    runtime.execute();
 
     println!("end of main");
 }
@@ -355,33 +355,33 @@ fn func4() {
     println!("func 4");
 }
 
-pub fn stack1_trigger(from_stack_id: usize, _data_buff_index: usize) {
+pub fn callback1(from_stack_id: usize, _data_buff_index: usize) {
     println!(
-        "stack1_trigger called from {} to {}",
+        "callback1 called from {} to {}",
         from_stack_id,
         get_current_stack_id()
     );
 }
 
-pub fn stack2_trigger(from_stack_id: usize, _data_buff_index: usize) {
+pub fn callback2(from_stack_id: usize, _data_buff_index: usize) {
     println!(
-        "stack2_trigger called from {} to {}",
+        "callback2 called from {} to {}",
         from_stack_id,
         get_current_stack_id()
     );
 }
 
-pub fn stack3_trigger(from_stack_id: usize, _data_buff_index: usize) {
+pub fn callback3(from_stack_id: usize, _data_buff_index: usize) {
     println!(
-        "stack3_trigger called from {} to {}",
+        "callback3 called from {} to {}",
         from_stack_id,
         get_current_stack_id()
     );
 }
 
-pub fn stack4_trigger(from_stack_id: usize, _data_buff_index: usize) {
+pub fn callback4(from_stack_id: usize, _data_buff_index: usize) {
     println!(
-        "stack4_trigger called from {} to {}",
+        "callback4 called from {} to {}",
         from_stack_id,
         get_current_stack_id()
     );
